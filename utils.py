@@ -1,3 +1,4 @@
+import os
 import random
 import requests
 from config import cfg
@@ -24,3 +25,8 @@ def send(addr, route, message):
         return reply
     else:
         return None
+
+
+def scan_ips(dir_path):
+    files = os.listdir(dir_path)
+    return ['http://'+ ip for ip in files]

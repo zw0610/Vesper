@@ -1,3 +1,4 @@
+from utils import scan_ips
 from node import Node
 from node import FOLLOWER, LEADER
 from flask import Flask, request, jsonify
@@ -69,14 +70,15 @@ if __name__ == "__main__":
     if len(sys.argv) == 3:
         index = int(sys.argv[1])
         ip_list_file = sys.argv[2]
-        ip_list = []
         # open ip list file and parse all the ips
-        with open(ip_list_file) as f:
-            for ip in f:
-                ip_list.append(ip.strip())
+        # with open(ip_list_file) as f:
+        #     for ip in f:
+        #         ip_list.append(ip.strip())
+        # my_ip = ip_list.pop(index)
+        ip_list = scan_ips(ip_list_file)
         my_ip = ip_list.pop(index)
 
-        http, host, port = my_ip.split(':')
+        _, host, port = my_ip.split(':')
         # initialize node with ip list and its own ip
         n = Node(ip_list, my_ip)
         app.run(host="0.0.0.0", port=int(port), debug=False)
