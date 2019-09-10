@@ -48,16 +48,26 @@ class Node():
 
     # spawn threads to request vote for all followers until get reply
     def send_vote_req(self):
-        # TODO: use map later for better performance
         # we continue to ask to vote to the address that haven't voted yet
         # till everyone has voted
         # or I am the leader
-        for voter in self.fellow:
-            threading.Thread(target=self.ask_for_vote,
-                             args=(voter, self.term)).start()
+        thread_list = [
+            threading.Thread(target=self.ask_for_vote, args=(voter, self.term))
+            for voter in self.fellow
+        ]
+        [t.start() for t in thread_list]
+        [t.join() for t in thread_list]
 
     # request vote to other servers during given election term
-    def ask_for_vote(self, voter, term):
+    def ask_for_vote(self, voter, term, patience=0.0):
+        """
+        
+        Arguments:
+            voter: element in self.fellow, which essentially is the ip of other member in the group
+
+        Return:
+            Nothing
+        """
         # need to include self.commitIdx, only up-to-date candidate could win
         message = {
             "term": term,
@@ -67,6 +77,8 @@ class Node():
         route = "vote_req"
         while self.status == CANDIDATE and self.term == term:
             reply = utils.send(voter, route, message)
+            if patience > 0.0:
+                time.sleep(patience)
             if reply:
                 choice = reply.json()["choice"]
                 # print(f"RECEIVED VOTE {choice} from {voter}")
@@ -109,9 +121,12 @@ class Node():
             # we consider it as a new payload just received and spread it aorund
             self.handle_put(self.staged)
 
-        for each in self.fellow:
-            t = threading.Thread(target=self.send_heartbeat, args=(each, ))
-            t.start()
+        thread_list = [
+            threading.Thread(target=self.send_heartbeat, args=(each, ))
+            for each in self.fellow
+        ]
+        [t.start() for t in thread_list]
+        [t.join() for t in thread_list]
 
     def update_follower_commitIdx(self, follower):
         route = "heartbeat"

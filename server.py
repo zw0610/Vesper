@@ -69,13 +69,8 @@ if __name__ == "__main__":
     # python server.py index ip_list
     if len(sys.argv) == 3:
         index = int(sys.argv[1])
-        ip_list_file = sys.argv[2]
-        # open ip list file and parse all the ips
-        # with open(ip_list_file) as f:
-        #     for ip in f:
-        #         ip_list.append(ip.strip())
-        # my_ip = ip_list.pop(index)
-        ip_list = scan_ips(ip_list_file)
+        ip_list_dir = sys.argv[2]
+        ip_list = scan_ips(ip_list_dir)
         my_ip = ip_list.pop(index)
 
         _, host, port = my_ip.split(':')
@@ -83,4 +78,4 @@ if __name__ == "__main__":
         n = Node(ip_list, my_ip)
         app.run(host="0.0.0.0", port=int(port), debug=False)
     else:
-        print("usage: python server.py <index> <ip_list_file>")
+        print("usage: python server.py <index> <ip_list_dir>")
